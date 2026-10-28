@@ -7,7 +7,7 @@
 # terminal it writes nothing. It never prints on stdout and always exits 0.
 
 agent=claude
-plugin_version=3.0.0
+plugin_version=3.1.0
 event=$1
 
 if [ -z "${KYON_CLI_AGENT_PROTOCOL_VERSION:-}" ] || [ -z "$event" ]; then

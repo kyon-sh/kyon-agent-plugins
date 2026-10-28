@@ -106,7 +106,7 @@ await check("pi: reports each event with the exact bytes", async () => {
 
 	const s = { session_id: "pi-session-1", cwd: "/work/a b" };
 	const expected = [
-		{ v: 1, agent: "pi", event: "session_start", plugin_version: "3.0.0", ...s },
+		{ v: 1, agent: "pi", event: "session_start", plugin_version: "3.1.0", ...s },
 		{ v: 1, agent: "pi", event: "prompt_submit", ...s, query: "fix \"it\"\n" },
 		{ v: 1, agent: "pi", event: "tool_complete", ...s, tool_name: "bash" },
 		{ v: 1, agent: "pi", event: "question_asked", ...s, summary: "Allow rm?" },

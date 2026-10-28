@@ -1,6 +1,6 @@
 {
   "name": "kyon-agent-plugins",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "description": "Reports pi's status to Kyon and connects Kyon's MCP server while running in a Kyon terminal.",
   "private": true,
   "type": "module",

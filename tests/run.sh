@@ -56,7 +56,7 @@ for pair in claude-code:claude codex:codex; do
 	quiet "$dir: stop is silent and exits 0"
 
 	run_hook "$dir" session_start "$sample"
-	expect_report "$dir: session_start carries plugin_version" "$tmp/tty" "{\"v\":1,\"agent\":\"$agent\",\"event\":\"session_start\",\"plugin_version\":\"3.0.0\",\"native\":$sample_line}"
+	expect_report "$dir: session_start carries plugin_version" "$tmp/tty" "{\"v\":1,\"agent\":\"$agent\",\"event\":\"session_start\",\"plugin_version\":\"3.1.0\",\"native\":$sample_line}"
 
 	run_hook "$dir" prompt_submit ''
 	expect_report "$dir: empty stdin gives native null" "$tmp/tty" "{\"v\":1,\"agent\":\"$agent\",\"event\":\"prompt_submit\",\"native\":null}"
@@ -101,7 +101,7 @@ check_hooks() { # check_hooks <dir> <agent> <expected "Event=event" pairs...>
 			${SH:-sh} -c "$cmd" >"$tmp/out" 2>"$tmp/err"
 		rc=$?
 		extra=
-		[ "$ev" = session_start ] && extra=',"plugin_version":"3.0.0"'
+		[ "$ev" = session_start ] && extra=',"plugin_version":"3.1.0"'
 		expect_report "$dir: $key -> $ev" "$tmp/tty" "{\"v\":1,\"agent\":\"$agent\",\"event\":\"$ev\"$extra,\"native\":$sample_line}"
 		quiet "$dir: $key hook is silent"
 		n=$((n + 1))
@@ -125,36 +125,47 @@ else
 	fail "manifests"
 fi
 
-echo "# codex MCP command"
-# spawn_mcp: runs the configured kyon server command as Codex would, with no
-# shell in between, and prints "<status>:<stdout>"; stderr passes through.
+echo "# MCP command"
+# spawn_mcp <agent dir> <input>: runs the configured kyon server command as
+# the agent would, with no shell in between, and prints "<status>:<stdout>";
+# stderr passes through.
 spawn_mcp() {
-	node -e '
+	CLAUDE_PLUGIN_ROOT="$root/plugins/$1" node -e '
 		const fs = require("fs"), cp = require("child_process");
 		const s = JSON.parse(fs.readFileSync(process.argv[1], "utf8")).mcpServers.kyon;
-		const r = cp.spawnSync(s.command, s.args, { encoding: "utf8", timeout: 5000, input: "" });
+		const args = s.args.map((a) => a.replace("${CLAUDE_PLUGIN_ROOT}", process.env.CLAUDE_PLUGIN_ROOT));
+		const r = cp.spawnSync(s.command, args, { encoding: "utf8", timeout: 5000, input: process.argv[2] });
 		process.stderr.write(r.stderr);
 		process.stdout.write(r.status + ":" + r.stdout);
-	' "$root/plugins/codex/.mcp.json"
+	' "$root/plugins/$1/.mcp.json" "$2"
 }
-out=$( (unset KYON_MCP_BRIDGE; spawn_mcp) 2>"$tmp/err")
-lines=$(wc -l <"$tmp/err" | tr -d ' ')
-case $out in
-0:* | null:*) fail "codex: MCP command fails without KYON_MCP_BRIDGE" "status=$out" ;;
-*)
-	if [ "$lines" -eq 1 ]; then ok "codex: MCP command fails at once without KYON_MCP_BRIDGE: $(cat "$tmp/err")"
-	else fail "codex: MCP command prints one line without KYON_MCP_BRIDGE" "$(cat "$tmp/err")"; fi ;;
-esac
+handshake='{"jsonrpc":"2.0","id":0,"method":"initialize","params":{"protocolVersion":"2025-03-26","capabilities":{},"clientInfo":{"name":"t","version":"1"}}}
+{"jsonrpc":"2.0","method":"notifications/initialized"}
+{"method":"tools/list","params":{},"jsonrpc":"2.0","id":"l-1"}
+{"jsonrpc":"2.0","id":2,"method":"ping"}
+{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"x"}}'
+answers='0:{"jsonrpc":"2.0","id":0,"result":{"protocolVersion":"2025-03-26","capabilities":{"tools":{}},"serverInfo":{"name":"kyon","version":"3.1.0"},"instructions":"Not in a Kyon terminal, so Kyon'"'"'s tools are not available."}}
+{"jsonrpc":"2.0","id":"l-1","result":{"tools":[]}}
+{"jsonrpc":"2.0","id":2,"result":{}}
+{"jsonrpc":"2.0","id":3,"error":{"code":-32601,"message":"not in a Kyon terminal"}}'
 
 mkdir -p "$tmp/bridge dir"
 printf '#!/bin/sh\nprintf "%%s|" "$@"\n' >"$tmp/bridge dir/kyon"
 chmod +x "$tmp/bridge dir/kyon"
-out=$(KYON_MCP_BRIDGE="$tmp/bridge dir/kyon" spawn_mcp)
-if [ "$out" = "0:mcp-bridge|" ]; then
-	ok "codex: MCP command execs the bridge (path with a space) with mcp-bridge"
-else
-	fail "codex: MCP command execs the bridge" "got: $out"
-fi
+for dir in claude-code codex; do
+	out=$( (unset KYON_MCP_BRIDGE KYON_MCP_URL KYON_MCP_TOKEN; spawn_mcp "$dir" "$handshake") 2>"$tmp/err")
+	if [ "$out" = "$answers" ] && [ ! -s "$tmp/err" ]; then
+		ok "$dir: outside Kyon the MCP command is a server with no tools"
+	else
+		fail "$dir: outside Kyon the MCP command is a server with no tools" "got: $out $(cat "$tmp/err")"
+	fi
+	out=$(KYON_MCP_BRIDGE="$tmp/bridge dir/kyon" spawn_mcp "$dir" "")
+	if [ "$out" = "0:mcp-bridge|" ]; then
+		ok "$dir: MCP command execs the bridge (path with a space) with mcp-bridge"
+	else
+		fail "$dir: MCP command execs the bridge" "got: $out"
+	fi
+done
 
 echo "# pi extension"
 if node "$root/tests/pi.test.mjs" "$root" >"$tmp/out" 2>&1; then

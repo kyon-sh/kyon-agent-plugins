@@ -1,11 +1,8 @@
 {
   "mcpServers": {
     "kyon": {
-      "type": "http",
-      "url": "${KYON_MCP_URL}",
-      "headers": {
-        "Authorization": "Bearer ${KYON_MCP_TOKEN}"
-      }
+      "command": "sh",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/mcp/kyon.sh"]
     }
   }
 }

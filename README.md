@@ -21,9 +21,10 @@ claude plugin install kyon@kyon-agent-plugins
 
 The plugin lives in `plugins/claude-code`. Its hooks report session start,
 prompt submission, tool completion, permission prompts and the end of each
-turn. It bundles an HTTP MCP server named `kyon` at `${KYON_MCP_URL}` with an
-`Authorization: Bearer ${KYON_MCP_TOKEN}` header. Outside Kyon those variables
-are unset, so the server simply fails to connect.
+turn. It bundles a stdio MCP server named `kyon`, `mcp/kyon.sh`: in a Kyon
+terminal it runs `"$KYON_MCP_BRIDGE" mcp-bridge`, a program Kyon provides that
+forwards MCP to Kyon's server. Outside Kyon it answers as a server with no
+tools, so nothing shows as failed.
 
 ## Codex
 
@@ -37,10 +38,9 @@ submission, permission requests, tool completion, the end of each turn and
 interruptions. Codex may ask you to review and trust the plugin's hooks before
 they run.
 
-Because Codex does not expand variables in a server URL, the plugin bundles a
-stdio MCP server named `kyon` that runs `"$KYON_MCP_BRIDGE" mcp-bridge`, a
-program Kyon provides that forwards MCP to Kyon's server. Outside Kyon the
-command exits at once with a one-line message.
+It bundles the same stdio MCP server as the Claude Code plugin, written into
+`.mcp.json`: Kyon's bridge in a Kyon terminal, a server with no tools
+elsewhere.
 
 ## pi
 
