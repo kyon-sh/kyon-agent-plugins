@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "kyon": {
+      "command": "/bin/sh",
+      "args": ["-c", "exec \"${KYON_MCP_BRIDGE:?is not set (run inside a Kyon terminal)}\" mcp-bridge"],
+      "env_vars": ["KYON_MCP_BRIDGE", "KYON_MCP_URL", "KYON_MCP_TOKEN"]
+    }
+  }
+}

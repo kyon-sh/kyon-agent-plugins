@@ -1,0 +1,14 @@
+{
+  "name": "kyon",
+  "displayName": "Kyon",
+  "version": "3.0.0",
+  "description": "Reports Claude Code's status to Kyon and connects Kyon's MCP server while running in a Kyon terminal.",
+  "author": {
+    "name": "Ryowave",
+    "url": "https://github.com/kyon-sh"
+  },
+  "homepage": "https://github.com/kyon-sh/kyon-agent-plugins",
+  "repository": "https://github.com/kyon-sh/kyon-agent-plugins",
+  "license": "MIT",
+  "keywords": ["kyon", "terminal", "status", "mcp"]
+}

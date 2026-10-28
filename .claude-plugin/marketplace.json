@@ -1,0 +1,15 @@
+{
+  "name": "kyon-agent-plugins",
+  "owner": {
+    "name": "Ryowave",
+    "url": "https://github.com/kyon-sh"
+  },
+  "description": "Plugins that let coding agents report their status to Kyon and use Kyon's tools.",
+  "plugins": [
+    {
+      "name": "kyon",
+      "source": "./plugins/claude-code",
+      "description": "Reports Claude Code's status to Kyon and connects Kyon's MCP server."
+    }
+  ]
+}

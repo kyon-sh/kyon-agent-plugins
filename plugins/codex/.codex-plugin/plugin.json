@@ -1,0 +1,22 @@
+{
+  "name": "kyon",
+  "version": "3.0.0",
+  "description": "Reports Codex's status to Kyon and connects Kyon's MCP server while running in a Kyon terminal.",
+  "author": {
+    "name": "Ryowave",
+    "url": "https://github.com/kyon-sh"
+  },
+  "homepage": "https://github.com/kyon-sh/kyon-agent-plugins",
+  "repository": "https://github.com/kyon-sh/kyon-agent-plugins",
+  "license": "MIT",
+  "keywords": ["kyon", "terminal", "status", "mcp"],
+  "hooks": "./hooks/hooks.json",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Kyon",
+    "shortDescription": "Show Codex's status in Kyon and use Kyon's tools",
+    "developerName": "Ryowave",
+    "category": "Developer Tools",
+    "websiteURL": "https://github.com/kyon-sh/kyon-agent-plugins"
+  }
+}

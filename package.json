@@ -1,0 +1,21 @@
+{
+  "name": "kyon-agent-plugins",
+  "version": "3.0.0",
+  "description": "Reports pi's status to Kyon and connects Kyon's MCP server while running in a Kyon terminal.",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "author": "Ryowave",
+  "homepage": "https://github.com/kyon-sh/kyon-agent-plugins",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kyon-sh/kyon-agent-plugins.git"
+  },
+  "keywords": ["pi-package", "kyon"],
+  "pi": {
+    "extensions": ["./plugins/pi/kyon.js"]
+  },
+  "scripts": {
+    "test": "sh tests/run.sh"
+  }
+}
