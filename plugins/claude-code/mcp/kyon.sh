@@ -15,7 +15,7 @@ while IFS= read -r line || [ -n "$line" ]; do
 	case $(field method "$line") in
 	'"initialize"')
 		version=$(field protocolVersion "$line")
-		result="{\"protocolVersion\":${version:-\"2025-06-18\"},\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"kyon\",\"version\":\"3.1.0\"},\"instructions\":\"Not in a Kyon terminal, so Kyon's tools are not available.\"}"
+		result="{\"protocolVersion\":${version:-\"2025-06-18\"},\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"kyon\",\"version\":\"3.1.1\"},\"instructions\":\"Not in a Kyon terminal, so Kyon's tools are not available.\"}"
 		;;
 	'"tools/list"') result='{"tools":[]}' ;;
 	'"ping"') result='{}' ;;

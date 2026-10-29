@@ -9,6 +9,8 @@ Claude Code, Codex and pi. While the agent runs in a Kyon terminal, its plugin
 
 Outside a Kyon terminal the plugins do nothing visible: no output, no errors,
 no slowdown.
+The Claude Code plugin's hooks act only for Claude Code itself, so a setup that
+copies Claude Code's hooks into another agent reports nothing from them there.
 
 Kyon installs the right plugin for you. To install one by hand:
 

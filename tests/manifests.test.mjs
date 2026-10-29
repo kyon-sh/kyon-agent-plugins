@@ -16,7 +16,7 @@ const check = (name, fn) => {
 	}
 };
 
-const VERSION = "3.1.0";
+const VERSION = "3.1.1";
 
 check("claude: marketplace names kyon-agent-plugins with plugin kyon at ./plugins/claude-code", () => {
 	const m = read(".claude-plugin/marketplace.json");
@@ -25,7 +25,7 @@ check("claude: marketplace names kyon-agent-plugins with plugin kyon at ./plugin
 	assert.deepEqual(m.plugins.map((p) => [p.name, p.source]), [["kyon", "./plugins/claude-code"]]);
 });
 
-check("claude: plugin.json is kyon 3.1.0", () => {
+check("claude: plugin.json is kyon 3.1.1", () => {
 	const p = read("plugins/claude-code/.claude-plugin/plugin.json");
 	assert.equal(p.name, "kyon");
 	assert.equal(p.version, VERSION);
@@ -51,7 +51,7 @@ check("codex: marketplace names kyon-agent-plugins with plugin kyon at ./plugins
 	);
 });
 
-check("codex: plugin.json is kyon 3.1.0 and points at its hooks and MCP config", () => {
+check("codex: plugin.json is kyon 3.1.1 and points at its hooks and MCP config", () => {
 	const p = read("plugins/codex/.codex-plugin/plugin.json");
 	assert.equal(p.name, "kyon");
 	assert.equal(p.version, VERSION);
@@ -74,7 +74,7 @@ check("codex: .mcp.json bundles stdio server kyon as the launcher, written in", 
 	assert.deepEqual(s.kyon.env_vars, ["KYON_MCP_BRIDGE", "KYON_MCP_URL", "KYON_MCP_TOKEN"]);
 });
 
-check("pi: package.json is a pi package at version 3.1.0 naming the extension", () => {
+check("pi: package.json is a pi package at version 3.1.1 naming the extension", () => {
 	const p = read("package.json");
 	assert.equal(p.version, VERSION);
 	assert.ok(p.keywords.includes("pi-package"));

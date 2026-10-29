@@ -6,7 +6,7 @@
 
 import { closeSync, openSync, writeSync } from "node:fs";
 
-export const PLUGIN_VERSION = "3.1.0";
+export const PLUGIN_VERSION = "3.1.1";
 
 const PREFIX = "\x1b]777;notify;kyon://cli-agent;";
 const BEL = "\x07";

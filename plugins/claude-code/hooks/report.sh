@@ -7,10 +7,13 @@
 # terminal it writes nothing. It never prints on stdout and always exits 0.
 
 agent=claude
-plugin_version=3.1.0
+plugin_version=3.1.1
 event=$1
 
-if [ -z "${KYON_CLI_AGENT_PROTOCOL_VERSION:-}" ] || [ -z "$event" ]; then
+# Only for Claude Code itself. Some setups copy Claude Code's hooks into
+# other agents; run there, a report from here would name the wrong agent,
+# and that agent has a plugin of its own.
+if [ -z "${KYON_CLI_AGENT_PROTOCOL_VERSION:-}" ] || [ -z "$event" ] || [ -z "${CLAUDECODE:-}" ]; then
 	cat >/dev/null 2>&1
 	exit 0
 fi

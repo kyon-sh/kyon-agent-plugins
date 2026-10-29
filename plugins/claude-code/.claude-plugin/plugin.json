@@ -1,7 +1,7 @@
 {
   "name": "kyon",
   "displayName": "Kyon",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "description": "Reports Claude Code's status to Kyon and connects Kyon's MCP server while running in a Kyon terminal.",
   "author": {
     "name": "Ryowave",

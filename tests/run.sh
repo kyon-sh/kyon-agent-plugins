@@ -27,13 +27,22 @@ expect_report() {
 	fi
 }
 
+# agent_marker <agent dir>: what the agent itself sets for its hooks.
+agent_marker() {
+	case $1 in
+	claude-code) echo CLAUDECODE=1 ;;
+	*) echo KYON_NOTHING= ;;
+	esac
+}
+
 # run_hook <agent dir> <event> <stdin> [extra env assignments...]
 # Runs report.sh with a test tty; leaves $tmp/tty, $tmp/out, $tmp/err, $rc.
 run_hook() {
 	dir=$1 event=$2 input=$3
 	shift 3
 	rm -f "$tmp/tty"
-	printf '%s' "$input" | env -u TMUX KYON_CLI_AGENT_PROTOCOL_VERSION=1 KYON_TTY="$tmp/tty" "$@" \
+	printf '%s' "$input" | env -u TMUX -u CLAUDECODE KYON_CLI_AGENT_PROTOCOL_VERSION=1 KYON_TTY="$tmp/tty" \
+		$(agent_marker "$dir") "$@" \
 		${SH:-sh} "$root/plugins/$dir/hooks/report.sh" "$event" >"$tmp/out" 2>"$tmp/err"
 	rc=$?
 }
@@ -56,7 +65,7 @@ for pair in claude-code:claude codex:codex; do
 	quiet "$dir: stop is silent and exits 0"
 
 	run_hook "$dir" session_start "$sample"
-	expect_report "$dir: session_start carries plugin_version" "$tmp/tty" "{\"v\":1,\"agent\":\"$agent\",\"event\":\"session_start\",\"plugin_version\":\"3.1.0\",\"native\":$sample_line}"
+	expect_report "$dir: session_start carries plugin_version" "$tmp/tty" "{\"v\":1,\"agent\":\"$agent\",\"event\":\"session_start\",\"plugin_version\":\"3.1.1\",\"native\":$sample_line}"
 
 	run_hook "$dir" prompt_submit ''
 	expect_report "$dir: empty stdin gives native null" "$tmp/tty" "{\"v\":1,\"agent\":\"$agent\",\"event\":\"prompt_submit\",\"native\":null}"
@@ -74,6 +83,14 @@ for pair in claude-code:claude codex:codex; do
 	run_hook "$dir" stop "$sample" KYON_TTY="$tmp/missing/dir/tty"
 	quiet "$dir: unopenable tty exits 0 silently"
 done
+
+# Claude Code's hooks copied into another agent: nothing said, nothing printed.
+rm -f "$tmp/tty"
+printf '%s' "$sample" | env -u TMUX -u CLAUDECODE KYON_CLI_AGENT_PROTOCOL_VERSION=1 KYON_TTY="$tmp/tty" \
+	${SH:-sh} "$root/plugins/claude-code/hooks/report.sh" tool_complete >"$tmp/out" 2>"$tmp/err"
+rc=$?
+if [ ! -e "$tmp/tty" ]; then ok "claude-code: run by another agent, nothing is reported"; else fail "claude-code: run by another agent, nothing is reported"; fi
+quiet "claude-code: run by another agent, it exits 0 silently"
 
 echo "# hook configuration runs the right events"
 # hook_table <hooks.json>: one "Event[:matcher]<TAB>command" line per hook.
@@ -96,12 +113,13 @@ check_hooks() { # check_hooks <dir> <agent> <expected "Event=event" pairs...>
 		cmd=$(awk -F '\t' -v k="$key" '$1 == k { print $2 }' "$tmp/table")
 		if [ -z "$cmd" ]; then fail "$dir: $key is hooked"; continue; fi
 		rm -f "$tmp/tty"
-		printf '%s' "$sample" | env -u TMUX KYON_CLI_AGENT_PROTOCOL_VERSION=1 KYON_TTY="$tmp/tty" \
+		printf '%s' "$sample" | env -u TMUX -u CLAUDECODE KYON_CLI_AGENT_PROTOCOL_VERSION=1 KYON_TTY="$tmp/tty" \
+			$(agent_marker "$dir") \
 			CLAUDE_PLUGIN_ROOT="$root/plugins/$dir" PLUGIN_ROOT="$root/plugins/$dir" \
 			${SH:-sh} -c "$cmd" >"$tmp/out" 2>"$tmp/err"
 		rc=$?
 		extra=
-		[ "$ev" = session_start ] && extra=',"plugin_version":"3.1.0"'
+		[ "$ev" = session_start ] && extra=',"plugin_version":"3.1.1"'
 		expect_report "$dir: $key -> $ev" "$tmp/tty" "{\"v\":1,\"agent\":\"$agent\",\"event\":\"$ev\"$extra,\"native\":$sample_line}"
 		quiet "$dir: $key hook is silent"
 		n=$((n + 1))
@@ -144,7 +162,7 @@ handshake='{"jsonrpc":"2.0","id":0,"method":"initialize","params":{"protocolVers
 {"method":"tools/list","params":{},"jsonrpc":"2.0","id":"l-1"}
 {"jsonrpc":"2.0","id":2,"method":"ping"}
 {"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"x"}}'
-answers='0:{"jsonrpc":"2.0","id":0,"result":{"protocolVersion":"2025-03-26","capabilities":{"tools":{}},"serverInfo":{"name":"kyon","version":"3.1.0"},"instructions":"Not in a Kyon terminal, so Kyon'"'"'s tools are not available."}}
+answers='0:{"jsonrpc":"2.0","id":0,"result":{"protocolVersion":"2025-03-26","capabilities":{"tools":{}},"serverInfo":{"name":"kyon","version":"3.1.1"},"instructions":"Not in a Kyon terminal, so Kyon'"'"'s tools are not available."}}
 {"jsonrpc":"2.0","id":"l-1","result":{"tools":[]}}
 {"jsonrpc":"2.0","id":2,"result":{}}
 {"jsonrpc":"2.0","id":3,"error":{"code":-32601,"message":"not in a Kyon terminal"}}'

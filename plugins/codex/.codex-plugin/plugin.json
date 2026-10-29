@@ -1,6 +1,6 @@
 {
   "name": "kyon",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "description": "Reports Codex's status to Kyon and connects Kyon's MCP server while running in a Kyon terminal.",
   "author": {
     "name": "Ryowave",
